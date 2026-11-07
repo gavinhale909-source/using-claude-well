@@ -15054,7 +15054,7 @@ function buildIndex(){
   CORDER.forEach(function(ck){var C=COURSES[ck];IDX.push({t:C.name+' overview',txt:(C.name+' '+C.sub+' course overview start'+(ck==='core'?' here where to begin first new beginner':'')).toLowerCase(),view:C.hub,el:null,where:byC[ck].length+' stops'})});
   $$('.view').forEach(function(v){
     var id=v.dataset.view,m=byId[id],where=m?('Stop '+m.lab+' · '+m.t):(HUBC[id]?COURSES[HUBC[id]].name:(SPECIAL[id]?SPECIAL[id][1]:'Home'));
-    $$('[data-s]',v).forEach(function(el){if(el.closest('[data-noidx]')||el.querySelector('.route,.dayplan,.ccgrid,.libtiles'))return;if(!el.id)el.id='s-'+id+'-'+(++sidN);IDX.push({t:el.dataset.s,txt:(el.dataset.s+' '+where+' '+el.textContent).toLowerCase(),view:id,el:el.id,where:where})});
+    $$('[data-s]',v).forEach(function(el){if(/^(BUTTON|LI|SPAN)$/.test(el.tagName)/* f7: widget attrs, not sections */||el.closest('[data-noidx]')||el.querySelector('.route,.dayplan,.ccgrid,.libtiles'))return;if(!el.id)el.id='s-'+id+'-'+(++sidN);IDX.push({t:el.dataset.s,txt:(el.dataset.s+' '+where+' '+el.textContent).toLowerCase(),view:id,el:el.id,where:where})});
     if(m){IDX.push({t:m.t,txt:(m.t+' '+m.d+' '+m.tags.join(' ')+' '+COURSES[m.c].name).toLowerCase(),view:id,el:null,where:'Stop '+m.lab+' · '+COURSES[m.c].name});
       m.tags.forEach(function(tg){if(/^\d/.test(tg)||tg.length<5)return;IDX.push({t:tg,txt:(tg+' '+m.t).toLowerCase(),view:id,el:tagAnchor(m,tg),where:'Tool · Stop '+m.lab+' · '+m.t})})}
   });
@@ -21741,7 +21741,7 @@ document.addEventListener('click',function(e){var b=e.target.closest('.tok-b');i
     let last = -1;
     const setStage = (p) => {
       if (!offsetOK) { const r = +dot.dataset.r, c = +dot.dataset.c, a = -Math.PI / 2 + p * Math.PI * 2; dot.style.translate = `${c + r * Math.cos(a)}px ${c + r * Math.sin(a)}px`; }
-      const s = p >= .985 ? N : Math.min(N - 1, Math.floor(p * N + 1e-6));
+      const s = p >= .985 ? N : Math.max(0, Math.min(N - 1, Math.floor(p * N + 1e-6)));   // f7: clamp, p can dip below 0
       if (s === last) return; last = s;
       nodes.forEach((n, i) => { n.classList.toggle('is-on', i === s); n.classList.toggle('is-past', i < s); });
       cards.forEach((c, i) => { c.classList.toggle('is-on', i === s); c.classList.toggle('is-past', i < s); });
@@ -21760,7 +21760,7 @@ document.addEventListener('click',function(e){var b=e.target.closest('.tok-b');i
       mode = 'play'; loop.classList.add('is-playing');
       if (PK.reduced()) { manual(0); let s = 0; const step = () => { s++; manual(Math.min(1, s / N)); if (s < N) playing = setTimeout(step, 1400); }; playing = setTimeout(step, 1400); return; }
       const t0 = performance.now(), dur = 9000;
-      const f = (t) => { const p = Math.min(1, (t - t0) / dur); loop.style.setProperty('--pk-p', p.toFixed(4)); setStage(p); if (p < 1) playing = requestAnimationFrame(f); else { playing = null; loop.classList.remove('is-playing'); loop.classList.add('is-manual'); mode = 'manual'; } };
+      const f = (t) => { const p = Math.max(0, Math.min(1, (t - t0) / dur));   /* f7: the first rAF stamp can be < t0 -> p<0 -> stages[-1] threw */ loop.style.setProperty('--pk-p', p.toFixed(4)); setStage(p); if (p < 1) playing = requestAnimationFrame(f); else { playing = null; loop.classList.remove('is-playing'); loop.classList.add('is-manual'); mode = 'manual'; } };
       playing = requestAnimationFrame(f);
     };
     el.addEventListener('click', (e) => {
@@ -23099,6 +23099,7 @@ function build(){
  })});
  // sections
  $$('.view').forEach(function(v){var id=v.dataset.view;if(!id)return;$$('[data-s]',v).forEach(function(el){
+  if(/^(BUTTON|LI|SPAN)$/.test(el.tagName))return;  // f7: widget state attrs (teams stage nodes, exams rd-h, B3 ears/brain/mouth) are not sections
   var intro=el.querySelector('.sec-intro,.lede,p');add({g:'sec',id:'x:'+id+':'+el.dataset.s,label:el.dataset.s,sub:viewTitle(id),icon:'doc',kw:'',desc:intro?intro.textContent.trim().replace(/\s+/g,' ').slice(0,220):'',view:id,el:el,run:function(){if(!el.id)el.id='cmdk-s'+(++secN);G.go(id,el.id)}})})});
  // tool tiles
  $$('a.qt').forEach(function(a){var b=a.querySelector('b'),s=a.querySelector('span:not(.ic)'),h=(a.getAttribute('href')||'').slice(1),j=a.dataset.jump||'',k=h+'|'+j;if(!b||seen[k])return;seen[k]=1;
