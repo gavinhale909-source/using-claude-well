@@ -776,6 +776,7 @@ html.intro-on{overflow:hidden;overscroll-behavior:none}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>/* f6: scripts are on, so the "interactive parts are switched off" notice (#nojs, removed later by app3.js) never paints */document.documentElement.classList.add('js');</script>
 <script>/* theme before first paint: saved Light/Dark (appTheme.js, __G.store key chr3_theme); System = no attribute */(function(){try{var t=JSON.parse(localStorage.getItem('chr3_theme'));if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
 <style>
 /* Layout idea: a course-site field guide. Fixed sidebar of numbered "stops" on a route; each module has its own
@@ -1469,12 +1470,19 @@ details.pr pre{margin:0;white-space:pre-wrap;font-family:var(--mono);font-size:.
 .empty{padding:16px;text-align:center;color:var(--ink-2);background:var(--surface);border:1px dashed var(--line);border-radius:14px;display:none}
 .empty.show{display:block}
 #nojs{margin:16px 30px 0;padding:14px 18px;border-radius:12px;background:var(--yellow-bg);color:var(--ink);border:1px solid var(--line)}
+html.js #nojs{display:none}
 
 /* qa12: a placeholder wider than its field ("Thu Nov 12, 8 pm, Room 101", "Search: email, calendar, lights, 7 d") was cut mid-letter; end it with an ellipsis instead */
 input::placeholder,textarea::placeholder{text-overflow:ellipsis}
 input[placeholder]{text-overflow:ellipsis}
 /* qa12: .grid3 drops to two columns at 641-820px, which left an odd last card (maps "Look for", every 3-card row) alone at half width; it spans the row */
 @media (min-width:641px) and (max-width:820px){.grid3>:last-child:nth-child(odd){grid-column:1/-1}}
+/* f6: at phone width the four top-bar buttons left ~60px for the page title, so it read "Stop ..." on every stop.
+   Up to 560px Courses and Map are icon-only (their words stay in the DOM as the accessible name) and the gaps tighten. */
+@media (max-width:560px){
+  .topbar{gap:6px;padding:0 10px}
+  .topbar .mbtn,.topbar .nm-btn{font-size:0;gap:0;padding:0;width:40px;height:38px;justify-content:center;flex:none}
+}
 
 
 /* ===== v3 navigation ===== */
@@ -2156,6 +2164,8 @@ nav.mods .nitems .dot{width:28px;height:28px;font-size:.68rem}
 .sw2 .t0{color:var(--ink)}.sw2 .t1{color:var(--ink-3)}.sw2.on .t0{color:var(--ink-3)}.sw2.on .t1{color:var(--ink)}
 .codecard{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .cch{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px 8px 14px;background:var(--surface-2);font-family:var(--mono);font-size:.74rem;color:var(--ink-2)}
+/* f6: keep the Copy button on one line beside long code-card titles (it was squeezed into a stacked circle at 390 px) */
+.cch>button{flex:none;white-space:nowrap}
 .codecard pre{margin:0;padding:12px 14px;font-family:var(--mono);font-size:.78rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .ic2{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--m-soft);color:var(--m);flex:0 0 auto}
 .ic2 svg{width:22px;height:22px}
@@ -3233,6 +3243,8 @@ footer.sitefoot{padding-right:72px;padding-bottom:max(var(--sf-pb,0px),96px)}
 
 /* sidebar showing (981-1140px): the 720px table minimum was ~60px wider than the column, clipping the last column ("Minimum age") behind a scroll */
 @media (min-width:981px) and (max-width:1140px){ .cmp{min-width:0} .cmp th,.cmp td{overflow-wrap:break-word} }
+/* f6: timeline year dots are 20px; a 28px invisible hit area (inset counts from inside the 3px border) makes them easier to tap on a phone */
+.tl-d::after{content:"";position:absolute;inset:-7px;border-radius:50%}
 
 /* ===================== The video shelf ===================== */
 .vlib{--gro:"Bricolage Grotesque","Figtree",system-ui,sans-serif;--hard:color-mix(in srgb,var(--ink) 88%,transparent);display:flex;flex-direction:column;gap:18px}
@@ -4643,6 +4655,30 @@ html.rvfx .rv.rv-c.rvd>*{clip-path:none}html.rvfx .rv.rvd{will-change:auto}
   ::view-transition-group(.pkw-blk), ::view-transition-old(.pkw-blk), ::view-transition-new(.pkw-blk) { animation: none !important; }
 }
 
+/* f5: the dark colours above only applied with an explicit Dark choice ([data-theme="dark"]); with the
+   default System theme on a dark device the "weak" label kept #c0563b on a dark card (3.9:1) and the chips
+   / risk notes kept their light-theme fills. Same rules for System + dark device. */
+@media (prefers-color-scheme: dark) {/*theme_css*/
+  :root:not([data-theme="light"]) .pk .pkw-side .bad { color: #ff9a7a; }
+  :root:not([data-theme="light"]) .pk .pkw-side .good { color: #5fe0b2; }
+  :root:not([data-theme="light"]) .pk .pkw-chip { color: #fde9b8; background: #4a3710; }
+  :root:not([data-theme="light"]) .pk .pkw-chip.is-ok { color: #cfdcff; background: #1d2a4a; }
+  :root:not([data-theme="light"]) .pk .pkw-stage .risk { color: #ffd9c4; background: #3d2416; }
+}
+
+  :root[data-theme="dark"] .pk .pkw-side .bad { color: #ff9a7a; }
+  :root[data-theme="dark"] .pk .pkw-side .good { color: #5fe0b2; }
+  :root[data-theme="dark"] .pk .pkw-chip { color: #fde9b8; background: #4a3710; }
+  :root[data-theme="dark"] .pk .pkw-chip.is-ok { color: #cfdcff; background: #1d2a4a; }
+  :root[data-theme="dark"] .pk .pkw-stage .risk { color: #ffd9c4; background: #3d2416; }
+
+
+/* f5: a <button> is laid out as one inline-block even with display:inline, so box-decoration-break never splits it:
+   a claim that wraps onto two lines (exams "Spot what needs checking", 1280px) drew its underline gradient once,
+   as a thick grey bar under the second line only. A text underline follows every line. */
+.pk .pkw-claim { background-image: none; text-decoration: underline; text-decoration-thickness: 4px; text-underline-offset: 5px;
+  text-decoration-color: color-mix(in oklab, var(--pk-ink) 16%, transparent); text-decoration-skip-ink: none; }
+
 /* =====================================================================
    NAVMAP · course knowledge-graph overlay + stop-to-stop travel.
    The overlay is always dark (a "night sky" of ideas) in both themes.
@@ -5624,6 +5660,8 @@ body[data-course="build"] .view .stack[data-s]>h2.sec::before{border-radius:999p
 }
 /* long course names in the progress card eyebrow broke with one word left over ("ADVANCED: WORK / SMARTER") */
 .view.hub .ringcard .eyebrow{ text-wrap: balance; }
+/* f5: the eyebrow is an inline span, so text-wrap did nothing and the wrapped line sat in the parent's tall line box (big gap before "SMARTER"); make it a block with its own line height */
+.ringcard .eyebrow{ display: block; line-height: 1.45; text-wrap: balance; }
 
 /* with the sidebar showing (981-1140px) the sitting cards sit in two columns: 3 sittings left the third alone on a half-empty row (and "Sitting 3" wrapped its title); let an odd last card take the full row */
 @media (min-width:981px) and (max-width:1140px){
@@ -5634,6 +5672,7 @@ body[data-course="build"] .view .stack[data-s]>h2.sec::before{border-radius:999p
 @media (min-width:641px){ .prereq > a:last-child:nth-child(odd){ grid-column: 1 / -1; } }
 /* tablet too: an odd last sitting card spans the row instead of sitting half-width alone */
 @media (min-width:481px) and (max-width:1140px){ .view.hub .dayplan > :last-child:nth-child(odd){ grid-column: 1 / -1; } }
+.ringcard .ringTxt{ text-wrap: balance; }  /* f5: "0 of 9 stops / done" left one word alone */
 
 /* =====================================================================
    add15.css · Maps stop (A6) graph refresh · worker-done · T003
@@ -5748,6 +5787,8 @@ body[data-course="build"] .view .stack[data-s]>h2.sec::before{border-radius:999p
 @media (min-width:861px) and (max-width:1279px){
   .gx-leg{flex-direction:column;align-items:flex-start;gap:6px;border-radius:14px;padding:8px 12px}
 }
+/* f6: the graph's filter chips were 22px tall; 24px is the minimum comfortable tap height */
+.gx-chip{min-height:24px}
 
 /* ===================== global nav bar, dashboard, tools, collapsible lists (desktop first) ===================== */
 :root{--gn-h:56px}
@@ -6327,6 +6368,13 @@ html.bdg-lock, html.bdg-lock body{ overflow: hidden; }
 @media (prefers-reduced-motion: reduce){
   .bdg-it, .bdg-hub, .bdg-cert, .bdg-sheet, .bdg-it .bdg-svg{ transition: none !important; animation: none !important; translate: none !important; }
   .bdg-m.on .bdg-svg{ animation: none; }
+}
+
+/* f5: in the six-across row (home "Your badges", ~46px a cell) "Advanced" and "Assistant" were cut to
+   "Adva…" / "Assist…". Slightly smaller captions that may spill a few px into the gap, never into a neighbour. */
+@media (min-width: 641px){
+  .bdg-list .bdg-cap{ font-size: .62rem; letter-spacing: -.01em; overflow: visible; text-overflow: clip; max-width: none; }
+  .bdg-list .bdg-it{ overflow: visible; }
 }
 
 /* =====================================================================
@@ -6921,6 +6969,9 @@ html.cmdk-lock{overflow:hidden}
 #v-callable .b3-reset{margin-top:12px}
 @media (max-width:640px){#v-callable .b3-dl{grid-template-columns:minmax(0,1fr)}}
 #v-callable .b3-vid{text-decoration:none;color:inherit}#v-callable .b3-vid:hover h4{text-decoration:underline}#v-callable .b3-vid h4,#v-callable .b3-vid p{margin:0}
+/* f6: the step dots are 12px; give each a 24px invisible hit area (WCAG 2.5.8 minimum) without changing the look */
+#v-callable .b3-dot{position:relative}
+#v-callable .b3-dot::after{content:"";position:absolute;inset:-6px;border-radius:50%}
 
 /* ===== B4 buildpath ===== */
 #v-buildpath code{font-family:var(--mono);font-size:.86em;background:var(--surface-2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
@@ -8218,6 +8269,12 @@ body.gn-stuck:not(.gn-hide) #bpTrack .bp-top { top: calc(var(--gn-h, 56px) + 54p
 }
 /* 961-1039px: the top-bar search is too narrow for its hint ("S…"): show just the magnifier until it is focused */
 @media (min-width:961px) and (max-width:1039px){.gn-search .searchbox input::placeholder{color:transparent}.gn-search .searchbox:focus-within input::placeholder{color:var(--ink-3)}}
+
+/* f5 · Health prompt studio (H5): its four tool steps carry their own "1 ·"–"4 ·" in the heading text, but the
+   automatic section badge also numbered steps 2 and 4 ("[01] 2 · What do you want to do?", "[02] 4 · Then ask
+   these") and skipped 1 and 3. Leave the numbered steps to their own text; the badges count the rest. */
+#v-prompts .stack[data-s="Choose a goal"] > h2.sec::before,
+#v-prompts .stack[data-s="Follow-up questions"] > h2.sec::before { content: none; counter-increment: none; }
 
 /* =====================================================================
    trans.css · route transitions (agent "trans"). Pairs with appTrans.js.
@@ -14034,7 +14091,7 @@ Never store passwords, passphrases, codes or account numbers.</pre></div>
 
     <div class="stack" data-s="Pick a team pattern">
       <h2 class="sec">Five ways to organise a team <small>explore, then find yours</small></h2>
-      <p class="sec-intro">Anthropic names five patterns plus the fully autonomous agent; most frameworks offer the same shapes under their own names (our mapping). Pick one to see it move, or answer the questions on the right.</p>
+      <p class="sec-intro">Anthropic names five patterns plus the fully autonomous agent; most frameworks offer the same shapes under their own names (our mapping). Pick one to see it move, or answer the questions alongside it.</p>
       <div class="pk-wbox b8-pat" id="b8Pat"></div>
     </div>
 
@@ -14777,7 +14834,7 @@ $$('[data-foot]').forEach(function(f){
   f.className='stack';
   if(next)end='<a class="nextcard" href="#'+next.id+'" data-m="'+next.m+'"><span><span class="k">Next · stop '+next.lab+' · '+esc(next.g)+'</span><b>'+esc(next.t)+'</b><p>'+esc(next.d)+'</p></span><span class="arr" aria-hidden="true">→</span></a>';
   else if(m.c==='core')end='<div class="trackpick"><span class="eyebrow">You’ve finished the core course · choose what’s next</span><div class="tp2"><a class="nextcard" href="#health" data-m="9"><span><span class="k">Course · '+byC.health.length+' stops</span><b>'+esc(COURSES.health.name)+'</b><p>Your health binder, asking health questions, a seven-step research method and checking medical claims.</p></span><span class="arr" aria-hidden="true">→</span></a><a class="nextcard" href="#school" data-m="6"><span><span class="k">Course · '+byC.school.length+' stops</span><b>'+esc(COURSES.school.name)+'</b><p>The class folder, learning by doing, study artifacts, exam prep and degree planning.</p></span><span class="arr" aria-hidden="true">→</span></a><a class="nextcard" href="#advanced-hub" data-m="7"><span><span class="k">Course · '+byC.adv.length+' stops</span><b>'+esc(COURSES.adv.name)+'</b><p>Full access safely, tokens and limits, models and effort, efficiency, plugins, big-project maps and teams of agents.</p></span><span class="arr" aria-hidden="true">→</span></a><a class="nextcard" href="#build-hub" data-m="8"><span><span class="k">New course · '+byC.build.length+' stops</span><b>'+esc(COURSES.build.name)+'</b><p>Build an assistant you can phone that does real things on your computer, safely.</p></span><span class="arr" aria-hidden="true">→</span></a></div></div>';
-  else{var other=m.c==='health'?'school':m.c==='school'?'adv':m.c==='adv'?'build':'health';end='<a class="nextcard" href="#'+C.hub+'" data-m="'+C.m+'"><span><span class="k">That’s the last stop of '+esc(C.name)+'</span><b>Back to the '+esc(C.name)+' overview</b><p>Everything stays here to come back to. Or try another course: '+esc(COURSES[other].name)+'.</p></span><span class="arr" aria-hidden="true">→</span></a>'}
+  else{var other=m.c==='health'?'school':m.c==='school'?'adv':m.c==='adv'?'build':'health';end='<a class="nextcard" href="#'+C.hub+'" data-m="'+C.m+'"><span><span class="k">That’s the last stop of '+esc(C.name)+'</span><b>Back to the course overview: '+esc(C.name)+'</b><p>Everything stays here to come back to. Or try another course: '+esc(COURSES[other].name)+'.</p></span><span class="arr" aria-hidden="true">→</span></a>'}
   f.innerHTML=end+'<div class="mfoot2">'+(prev?'<a class="btn ghost sm" href="#'+prev.id+'">← Stop '+prev.lab+': '+esc(prev.t)+'</a>':'<a class="btn ghost sm" href="#'+C.hub+'">← '+esc(C.name)+' overview</a>')+
    '<button class="mark" type="button" data-id="'+id+'"><span class="box"></span><span class="ml">Mark stop complete</span></button></div>';
 });
@@ -17880,7 +17937,9 @@ function poster(v,w,h){w=w||320;h=h||180;var c=col(v),seed=hash(v.id),r=function
  var a2=PAL[hash(v.by||v.id)%PAL.length],uid='p'+v.id.replace(/[^\w]/g,'')+w;
  // smooth line: baseline with gaussian peaks at each moment
  var N=90,pts=[],base=h*.72,peaks=v.m.length?v.m.map(function(x){return v.sec?x.s/v.sec:0}):[.15,.4,.55,.8].map(function(p){return p+(r()-.5)*.1});
- for(var i=0;i<=N;i++){var x=i/N,y=0;peaks.forEach(function(p,k){var amp=.35+((hash(v.id+k)%100)/100)*.45;y+=amp*Math.exp(-Math.pow((x-p)/.022,2))});y+=.05*Math.sin(x*18+hash(v.id)%7);pts.push([x*w,base-y*h*.5])}
+ for(var i=0;i<=N;i++){var x=i/N,y=0;peaks.forEach(function(p,k){var amp=.35+((hash(v.id+k)%100)/100)*.45;y+=amp*Math.exp(-Math.pow((x-p)/.022,2))});y+=.05*Math.sin(x*18+hash(v.id)%7);pts.push([x*w,y])}
+ /* f5: clustered key moments stacked their peaks above the poster's top edge (video 70 was cut off); scale the whole line down to fit */
+ var yMax=Math.max.apply(null,pts.map(function(p){return p[1]})),yk=yMax>1?1/yMax:1;pts.forEach(function(p){p[1]=base-p[1]*yk*h*.5});
  var d='M'+pts.map(function(p){return p[0].toFixed(1)+' '+p[1].toFixed(1)}).join(' L');
  var area=d+' L'+w+' '+h+' L0 '+h+' Z';
  var blobs='';for(var b=0;b<3;b++){blobs+='<circle cx="'+(r()*w).toFixed(0)+'" cy="'+(r()*h*.7).toFixed(0)+'" r="'+(h*(.45+r()*.45)).toFixed(0)+'" fill="'+(b===1?a2:c)+'" opacity="'+(.35+r()*.25).toFixed(2)+'"/>'}
@@ -18719,7 +18778,7 @@ var atkEl=$('#bpAtk'),ai=-1,timer=null;
 if(atkEl){
  atkEl.innerHTML='<div class="bp-al" role="listbox" aria-label="Pick an attack">'+ATK.map(function(a,i){return '<button type="button" role="option" class="bp-ao" data-i="'+i+'" aria-selected="false"><b>'+esc(a.t)+'</b><small>'+esc(a.d)+'</small></button>'}).join('')+'</div>'+
  '<div class="bp-ar"><ol class="bp-layers">'+LAYERS.map(function(l,i){return '<li data-k="'+l[0]+'" style="--i:'+i+'"><span class="bp-lx" aria-hidden="true"></span><b>'+esc(l[1])+'</b><small>'+esc(l[2])+'</small></li>'}).join('')+'</ol>'+
- '<div class="bp-res" aria-live="polite"><p class="muted small">Pick an attack on the left to send it through the layers.</p></div></div>';
+ '<div class="bp-res" aria-live="polite"><p class="muted small">Pick an attack to send it through the layers.</p></div></div>';
  var lis=$$('.bp-layers li',atkEl),res=$('.bp-res',atkEl);
  function run(i){ai=i;var a=ATK[i],stop=a.stop?LAYERS.map(function(l){return l[0]}).indexOf(a.stop):LAYERS.length;
   $$('.bp-ao',atkEl).forEach(function(b,j){b.setAttribute('aria-selected',String(j===i))});
@@ -29039,6 +29098,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       heroCrew = __SWARM.hero(hero, units.filter(function (e) { return hero.contains(e); }), { delay: 150, show: show, keep: 'h1, .pk-tokens' });
       heroCrew.onDone = function () { setTimeout(releaseTokens, 250); };   // after the overlay is gone and a skipped crew's last pieces have settled (~200 ms)
       crewAdd(heroCrew); hero = null; }
+    // f5 fix: the crew hides its pieces with WAAPI, but while html.intro-on is still set the intro's own
+    // `opacity ... !important` rules (intro.min.css) beat those animations, so the eyebrow, lede and buttons
+    // flashed fully visible for ~140 ms (8 frames) between the intro landing and its cleanup. Keep the
+    // visibility hold until the intro classes are gone (the observer runs before the next paint).
+    if (heroCrew && h.classList.contains('intro-on')) {
+      var crewMo = new MutationObserver(function () { if (!h.classList.contains('intro-on')) { crewMo.disconnect(); h.classList.remove('cine-crew-wait'); } });
+      crewMo.observe(h, { attributes: true, attributeFilter: ['class'] });
+    } else
     h.classList.remove('cine-crew-wait');   // the crew has hidden its pieces by now (same task: nothing paints in between)
     if (!heroCrew) releaseTokens();          // no crew after all: the line streams right away
     if (hero && wantsBuild(hero)) { var hu = now.filter(function (e) { return hero.contains(e); });
@@ -29056,7 +29123,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if (!hold) { h.classList.remove('cine-crew-wait'); releaseTokens(); }   // a hold from an earlier entry never outlives it
     units.forEach(function (e) { e.classList.add('cn'); });
     var token = ++arriveToken;
-    if (hold && window.__SWARM && isCore(view)) { var hh = view.querySelector('.mhead, .hero'); if (hh && wantsBuild(hh)) h.classList.add('cine-crew-wait', 'cine-tok-wait'); }   // the crew will build this hero after the intro
+    if (hold && window.__SWARM && isCore(view)) { var hh = view.querySelector('.mhead, .hero'); if (hh && wantsBuild(hh)) h.classList.add('cine-crew-wait', 'cine-tok-wait', 'sw-hold'); }   // the crew will build this hero after the intro
+    // f6: 'sw-hold' was removed below but never added, so swarm.css's hold never applied: between intro-landed and the end of intro-on
+    // (~110 ms) intro.min.css forces the hero pieces to opacity:1!important, beating the crew's own hide, and the eyebrow + lede flashed in, then vanished
     // the crew starts as the intro's title lands (not when the intro has fully cleaned up)
     if (hold) { introPlayed = true; var started = false; introTimer = setInterval(function () { var on = h.classList.contains('intro-on');
       if (!started && (!on || h.classList.contains('intro-landed'))) { started = true; heroNow(view); arrive(view, token); }
@@ -29295,7 +29364,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     var words = [];
     Array.prototype.slice.call(h.childNodes).forEach(function (n) {
       if (n.nodeType !== 3 || !n.nodeValue.trim()) return;
-      var frag = d.createDocumentFragment();
+      /* f5 fix: h2.sec is display:flex with gap:12px, so loose word spans each became a flex item and the
+         heading read "Start   here". One inline wrapper keeps the words (and their real spaces) in one item. */
+      var frag = d.createElement('span'); frag.className = 'fl-ws';
       n.nodeValue.split(/(\s+)/).forEach(function (w) {
         if (!w) return; if (/^\s+$/.test(w)) { frag.appendChild(d.createTextNode(w)); return; }
         var s = d.createElement('span'); s.className = 'fl-w'; s.textContent = w; frag.appendChild(s); words.push(s);
